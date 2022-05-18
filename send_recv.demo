@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+"""
+send/recv demo
+"""
+
+from mpi4py import MPI
+import sys
+
+import numpy as np
+comm = MPI.COMM_WORLD
+
+name = MPI.Get_processor_name()
+rank = MPI.COMM_WORLD.Get_rank()
+size = MPI.COMM_WORLD.Get_size()
+
+assert size % 2 == 0  # demo for even number of processes
+
+if rank % 2 == 0: # even senders
+  data = np.random.randint(100)
+  print("%03d/%03d sending : %s to %d" % (rank,size,data, rank + 1))
+  comm.send(data, dest= rank + 1 )
+else: # odd ranks receivers
+  data = comm.recv(source= rank - 1)
+  print("%03d/%03d received: %s from %d" % (rank,size,data,rank - 1))
